@@ -60,17 +60,19 @@ module mod_global_parameters
   integer :: z_ = -1
 
   !> Number of spatial dimensions for grid variables
-  integer, parameter :: ndim=3
+      integer, parameter :: ndim=3
+      !> User selected dimension
+  integer :: userdim=3
 
   !> Number of spatial dimensions (components) for vector variables
   integer :: ndir=ndim
 
   !> starting dimension for electric field
-  
-  
-  
+
+
+
   integer, parameter :: sdim=1
- 
+
 
   !> Cartesian geometry or not
   logical :: slab
@@ -366,7 +368,7 @@ module mod_global_parameters
   logical :: fix_small_values=.false.
 
   !> split magnetic field as background B0 field
-  ! TODO these should be moved in a different file  
+  ! TODO these should be moved in a different file
   logical :: B0field=.false.
   logical :: B0fieldAllocCoarse=.false.
 
@@ -522,6 +524,9 @@ module mod_global_parameters
   !> If > 1, then in the first slowsteps-1 time steps dt is reduced
   !> by a factor \f$ 1 - (1- step/slowsteps)^2 \f$
   integer :: slowsteps
+
+  !> Enter infite sleep loop for attaching a debugger. 1 for yes, 0 for no
+  integer, volatile :: debugloop
 
   ! Method switches
 
@@ -722,7 +727,7 @@ module mod_global_parameters
   character(len=std_len) :: filename_whitelight
   !> white light observation instrument
   character(len=std_len) :: whitelight_instrument
-  !> the white light emission below it (unit=Rsun) is not visible 
+  !> the white light emission below it (unit=Rsun) is not visible
   double precision :: R_occultor
   !> direction of the line of sight (LOS)
   double precision :: LOS_theta,LOS_phi
