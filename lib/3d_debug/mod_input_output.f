@@ -28,7 +28,7 @@ module mod_input_output
   character(len=*), parameter :: fmt_i  = 'i8'     ! Integer format
 
   ! public methods
-  public :: snapshot_write_header  
+  public :: snapshot_write_header
 
 contains
 
@@ -233,7 +233,7 @@ contains
     integer :: windex, ipower
     double precision :: sizeuniformpart1,sizeuniformpart2,sizeuniformpart3
     double precision :: im_delta,im_nu,rka54,rka51,rkb54,rka55
- 
+
     namelist /filelist/ base_filename,restart_from_file, typefilelog,&
        firstprocess,reset_grid,snapshotnext, convert,convert_type,saveprim,&
        usr_filename,nwauxio,nocartesian, w_write,writelevel,writespshift,&
@@ -275,7 +275,8 @@ contains
        domain_nx2,domain_nx3,iprob,xprobmin1,xprobmin2,xprobmin3,xprobmax1,&
        xprobmax2,xprobmax3, w_refine_weight, prolongprimitive,coarsenprimitive,&
         typeprolonglimit, logflag,tfixgrid,itfixgrid,ditregrid
-    namelist /paramlist/  courantpar, dtpar, dtdiffpar, typecourant, slowsteps
+    namelist /paramlist/  courantpar, dtpar, dtdiffpar, typecourant, slowsteps,&
+         debugloop
 
     namelist /emissionlist/ filename_euv,wavelength,filename_sxr,emin_sxr,&
        emax_sxr,LOS_theta,LOS_phi,image_rotate,x_origin,big_image,spectrum_wl,&
@@ -312,22 +313,22 @@ contains
     nghostcells = 2
 
     ! Allocate boundary conditions arrays in new and old style
-    
+
     allocate(typeboundary_min1(nwfluxbc))
     allocate(typeboundary_max1(nwfluxbc))
     typeboundary_min1 = undefined
     typeboundary_max1 = undefined
-    
+
     allocate(typeboundary_min2(nwfluxbc))
     allocate(typeboundary_max2(nwfluxbc))
     typeboundary_min2 = undefined
     typeboundary_max2 = undefined
-    
+
     allocate(typeboundary_min3(nwfluxbc))
     allocate(typeboundary_max3(nwfluxbc))
     typeboundary_min3 = undefined
     typeboundary_max3 = undefined
-   
+
 
     allocate(typeboundary(nwflux+nwaux,2*ndim))
     typeboundary=0
@@ -478,6 +479,7 @@ contains
     nxdiffusehllc   = 0
     flathllc        = .false.
     slowsteps       = -1
+    debugloop       = 0
     courantpar      = 0.8d0
     typecourant     = 'maxsum'
     dimsplit        = .false.
@@ -496,7 +498,7 @@ contains
     time_stepper    = 'twostep'
     time_integrator = 'default'
     ! default PC or explicit midpoint, hence alfa=0.5
-    rk2_alfa        = half 
+    rk2_alfa        = half
     ! default IMEX-RK22Ln hence lambda = 1 - 1/sqrt(2)
     imex222_lambda  = 1.0d0 - 1.0d0 / dsqrt(2.0d0)
     ! default SSPRK(3,3) or Gottlieb-Shu 1998 for threestep
@@ -624,7 +626,6 @@ contains
           // trim(base_filename)
        basename_prev = base_filename
     end do
-
     base_filename = basename_full
 
     ! Check whether output directory is writable
@@ -903,7 +904,7 @@ contains
        if (t_integrator==RK2_alf) then
           if(rk2_alfa<smalldouble.or.rk2_alfa>one)call &
              mpistop("set rk2_alfa within [0,1]")
-          rk_a21=rk2_alfa 
+          rk_a21=rk2_alfa
           rk_b2=1.0d0/(2.0d0*rk2_alfa)
           rk_b1=1.0d0-rk_b2
        endif
@@ -931,28 +932,28 @@ contains
        end select
        if(t_integrator==RK3_BT) then
            select case(rk3_switch)
-             case(1) 
+             case(1)
               ! we code up Ralston 3rd order here
               rk3_a21=1.0d0/2.0d0
               rk3_a31=0.0d0
               rk3_a32=3.0d0/4.0d0
               rk3_b1=2.0d0/9.0d0
               rk3_b2=1.0d0/3.0d0
-             case(2) 
+             case(2)
               ! we code up RK-Wray 3rd order here
               rk3_a21=8.0d0/15.0d0
               rk3_a31=1.0d0/4.0d0
               rk3_a32=5.0d0/12.0d0
               rk3_b1=1.0d0/4.0d0
               rk3_b2=0.0d0
-             case(3) 
+             case(3)
               ! we code up Heun 3rd order here
               rk3_a21=1.0d0/3.0d0
               rk3_a31=0.0d0
               rk3_a32=2.0d0/3.0d0
               rk3_b1=1.0d0/4.0d0
               rk3_b2=0.0d0
-             case(4) 
+             case(4)
               ! we code up Nystrom 3rd order here
               rk3_a21=2.0d0/3.0d0
               rk3_a31=0.0d0
@@ -1112,7 +1113,7 @@ contains
        end select
        if(t_integrator==ssprk5) then
          select case(ssprk_order)
-           ! we use ssprk_order to intercompare the different coefficient choices 
+           ! we use ssprk_order to intercompare the different coefficient choices
            case(3) ! From Gottlieb 2005
             rk_beta11=0.391752226571890d0
             rk_beta22=0.368410593050371d0
@@ -1284,7 +1285,7 @@ contains
     end if
 
     ! Copy boundary conditions to typeboundary, which is used internally
-    
+
     do iw=1,nwfluxbc
       select case(typeboundary_min1(iw))
       case("special")
@@ -1343,7 +1344,7 @@ contains
              typeboundary_max1(iw),"for variable iw=",iw," and side iB=",2*1
       end select
     end do
-    
+
     do iw=1,nwfluxbc
       select case(typeboundary_min2(iw))
       case("special")
@@ -1402,7 +1403,7 @@ contains
              typeboundary_max2(iw),"for variable iw=",iw," and side iB=",2*2
       end select
     end do
-    
+
     do iw=1,nwfluxbc
       select case(typeboundary_min3(iw))
       case("special")
@@ -1461,7 +1462,7 @@ contains
              typeboundary_max3(iw),"for variable iw=",iw," and side iB=",2*3
       end select
     end do
-   
+
 
     ! psi, tracers take the same boundary type as the first variable
     if (nwfluxbc<nwflux) then
@@ -1497,7 +1498,7 @@ contains
           end do
        end if
     end do
-    
+
     do idim=1,ndim
       if(any(typeboundary(:,2*idim-1)==12)) then
         if(any(typeboundary(:,2*idim-1)/=12)) typeboundary(:,2*idim-1)=12
@@ -1548,7 +1549,7 @@ contains
         end if
       end if
     end do
-   
+
 
     if(.not.phys_energy) then
       flatcd=.false.
@@ -1616,27 +1617,27 @@ contains
     end if
 
       select case (coordinate)
-         
+
       case (spherical)
          xprobmin2=xprobmin2*two*dpi;xprobmin3=xprobmin3*two*dpi
          xprobmax2=xprobmax2*two*dpi;xprobmax3=xprobmax3*two*dpi;
-         
+
       case (cylindrical)
-         
+
          if (1==phi_) then
             xprobmin1=xprobmin1*two*dpi;xprobmax1=xprobmax1*two*dpi;
          end if
-         
-         
+
+
          if (2==phi_) then
             xprobmin2=xprobmin2*two*dpi;xprobmax2=xprobmax2*two*dpi;
          end if
-         
-         
+
+
          if (3==phi_) then
             xprobmin3=xprobmin3*two*dpi;xprobmax3=xprobmax3*two*dpi;
          end if
-         
+
       end select
 
     ! full block size including ghostcells
@@ -1647,8 +1648,25 @@ contains
     ixGshi2 = ixGhi2
     ixGshi3 = ixGhi3
 
+    print *, 'A', block_nx1, block_nx2, block_nx3
+    ! Adjust ghost cells and userdim if some dimensions are not wanted
+    ! block_nx3/2 are set to 4 now, to pass tests, and to 1 later
+    if (block_nx3 == 0) then
+       block_nx3 = 4
+       ixGhi3 = 1
+       ixGshi3 = 1
+       userdim = 2
+       if (block_nx2 == 0) then
+          block_nx2 = 4
+          ixGhi2 = 1
+          ixGshi2 = 1
+          userdim = 1
+       end if
+    end if
+
     nx_vec = [domain_nx1, domain_nx2, domain_nx3]
     block_nx_vec = [block_nx1, block_nx2, block_nx3]
+    print *, 'B', block_nx_vec
 
     if (any(nx_vec < 4) .or. any(mod(nx_vec,&
         2) == 1)) call mpistop&
@@ -1663,10 +1681,10 @@ contains
 
       if(mod(domain_nx2,block_nx2)/=0) call &
          mpistop&
-         ('Grid (domain_nx^D) and block (block_nx^D) must be consistent') 
+         ('Grid (domain_nx^D) and block (block_nx^D) must be consistent')
       if(mod(domain_nx3,block_nx3)/=0) call &
          mpistop&
-         ('Grid (domain_nx^D) and block (block_nx^D) must be consistent') 
+         ('Grid (domain_nx^D) and block (block_nx^D) must be consistent')
 
     if(refine_max_level>nlevelshi.or.refine_max_level<1)then
        write(unitterm,*)'Error: refine_max_level',refine_max_level,&
@@ -1713,7 +1731,7 @@ contains
                     1) /(1.0d0+dsqrt(qstretch(ilev-1,1)))
               enddo
            endif
-        endif 
+        endif
        if (stretch_type(2) == stretch_uni) then
            ! first some sanity checks
            if(qstretch_baselevel(2)<1.0d0.or.qstretch_baselevel(2)==bigdouble) &
@@ -1746,7 +1764,7 @@ contains
                     2) /(1.0d0+dsqrt(qstretch(ilev-1,2)))
               enddo
            endif
-        endif 
+        endif
        if (stretch_type(3) == stretch_uni) then
            ! first some sanity checks
            if(qstretch_baselevel(3)<1.0d0.or.qstretch_baselevel(3)==bigdouble) &
@@ -1779,7 +1797,7 @@ contains
                     3) /(1.0d0+dsqrt(qstretch(ilev-1,3)))
               enddo
            endif
-        endif 
+        endif
         if(mype==0) then
            if(stretch_type(1) == stretch_uni) then
               write(*,*) 'Stretched dimension ', 1
@@ -1860,7 +1878,7 @@ contains
               sizeuniformpart1)>smalldouble) then
               call mpistop('mismatch in domain size!')
            endif
-        endif 
+        endif
        if(stretch_type(2) == stretch_symm) then
            if(mype==0) then
                write(*,*) 'will apply symmetric stretch in dimension', 2
@@ -1918,7 +1936,7 @@ contains
               sizeuniformpart2)>smalldouble) then
               call mpistop('mismatch in domain size!')
            endif
-        endif 
+        endif
        if(stretch_type(3) == stretch_symm) then
            if(mype==0) then
                write(*,*) 'will apply symmetric stretch in dimension', 3
@@ -1976,11 +1994,21 @@ contains
               sizeuniformpart3)>smalldouble) then
               call mpistop('mismatch in domain size!')
            endif
-        endif 
+        endif
         dxfirst_1mq(0:refine_max_level,1:ndim)=dxfirst(0:refine_max_level,&
            1:ndim) /(1.0d0-qstretch(0:refine_max_level,1:ndim))
     end if
 
+    if (userdim < 3) then
+       block_nx3 = 1
+       nx_vec(3) = 1
+       if (userdim < 2) then
+          nx_vec(2) = 1
+          block_nx2 = 1
+       end if
+    end if
+
+    ! ER: what does this do? Is it still okay with a block_nx? of 1?
     dx_vec = [xprobmax1-xprobmin1, xprobmax2-xprobmin2,&
         xprobmax3-xprobmin3] / nx_vec
 
@@ -2050,19 +2078,19 @@ contains
              write(uniterr,*)'Warning in read_par_files: ', 'Slice ', islice,&
               ' coordinate',slicecoord(islice),'out of bounds for dimension ',&
              slicedir(islice)
-          
+
           case(2)
           if(slicecoord(islice)<xprobmin2.or.slicecoord(islice)>xprobmax2) &
              write(uniterr,*)'Warning in read_par_files: ', 'Slice ', islice,&
               ' coordinate',slicecoord(islice),'out of bounds for dimension ',&
              slicedir(islice)
-          
+
           case(3)
           if(slicecoord(islice)<xprobmin3.or.slicecoord(islice)>xprobmax3) &
              write(uniterr,*)'Warning in read_par_files: ', 'Slice ', islice,&
               ' coordinate',slicecoord(islice),'out of bounds for dimension ',&
              slicedir(islice)
-          
+
        end select
     end do
 
@@ -2512,9 +2540,9 @@ contains
         ixOsmin1 = ixOmin1 -1
         ixOsmin2 = ixOmin2 -1
         ixOsmin3 = ixOmin3 -1
-        ixOsmax1 = ixOmax1 
-        ixOsmax2 = ixOmax2 
-        ixOsmax3 = ixOmax3 
+        ixOsmax1 = ixOmax1
+        ixOsmax2 = ixOmax2
+        ixOsmax3 = ixOmax3
         n_values_stagger= count_ix(ixOsmin1,ixOsmin2,ixOsmin3,ixOsmax1,&
            ixOsmax2,ixOsmax3)*nws
         w_buffer(n_values+1:n_values+n_values_stagger) = &
@@ -3134,13 +3162,11 @@ contains
     use mod_global_parameters
 
     integer, parameter :: n_modes = 2
+    integer, parameter :: my_unit = 123
     character(len=40)  :: fmt_string
-    character(len=2048)  :: line
     logical, save      :: file_open = .false.
     integer            :: power
     double precision   :: modes(nw, n_modes), volume
-    integer              :: amode, istatus(MPI_STATUS_SIZE)
-    character(len=80)    :: filename
 
     do power = 1, n_modes
        call get_volume_average(power, modes(:, power), volume)
@@ -3148,23 +3174,14 @@ contains
 
     if (mype == 0) then
        if (.not. file_open) then
-          filename = trim(base_filename) // ".log"
-          amode    = ior(MPI_MODE_CREATE,MPI_MODE_WRONLY)
-          amode    = ior(amode,MPI_MODE_APPEND)
-
-          call MPI_FILE_OPEN(MPI_COMM_SELF, filename, amode, MPI_INFO_NULL,&
-              log_fh, ierrmpi)
+          open(my_unit, file = trim(base_filename) // ".log")
           file_open = .true.
 
-          line= "# time mean(w) mean(w**2)"
-          call MPI_FILE_WRITE(log_fh, trim(line) // new_line('a'),&
-              len_trim(line)+1, MPI_CHARACTER, istatus, ierrmpi)
+          write(my_unit, *) "# time mean(w) mean(w**2)"
        end if
 
        write(fmt_string, "(a,i0,a)") "(", nw * n_modes + 1, fmt_r // ")"
-       write(line, fmt_string) global_time, modes
-       call MPI_FILE_WRITE(log_fh, trim(line) // new_line('a') ,&
-           len_trim(line)+1, MPI_CHARACTER, istatus, ierrmpi)
+       write(my_unit, fmt_string) global_time, modes
     end if
   end subroutine printlog_regression_test
 
