@@ -1093,9 +1093,23 @@ contains
 
     integer, intent(in) :: nwstart, nwbc
     integer :: i1,i2,i3, ic1,ic2,ic3, inc1,inc2,inc3, iib1,iib2,iib3
+    integer :: i3lo, i3hi, i2lo, i2hi
 
-    do i3=-1,1
-    do i2=-1,1
+    i3lo = -1
+    i3hi = 1
+    i2lo = -1
+    i2hi = 1
+    if (userdim < 3) then
+       i3lo = 0
+       i3hi = 0
+       if (userdim < 2) then
+          i2lo = 0
+          i2hi = 0
+       end if
+    end if
+
+    do i3 = i3lo, i3hi
+    do i2 = i2lo, i2hi
     do i1=-1,1
       if (i1==0.and.i2==0.and.i3==0) cycle
       do iib3=-1,2
