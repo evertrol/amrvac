@@ -98,7 +98,8 @@ contains
     neighbor_pole=0
 
     ! check resolution
-    if (mod(ixGhi1,2)/=0.or.mod(ixGhi2,2)/=0.or.mod(ixGhi3,2)/=0) then
+    if ((mod(ixGhi1,2) /= 0) .or. ((userdim > 1) .and. mod(ixGhi2,&
+       2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then
        call mpistop("mesh widths must give even number grid points")
     end if
     ixMlo1=ixGlo1+nghostcells;ixMlo2=ixGlo2+nghostcells
