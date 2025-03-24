@@ -44,11 +44,8 @@ contains
     ! Possibly load boundary condition data or initial data
     call bc_data_init()
     call read_data_init()
-
     if(associated(usr_set_parameters)) call usr_set_parameters()
-
     call phys_check_params()
-
     initialized_already = .true.
   end subroutine initialize_amrvac
 
@@ -102,9 +99,19 @@ contains
        2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then
        call mpistop("mesh widths must give even number grid points")
     end if
+    ! ER: why more ghostcells??
     ixMlo1=ixGlo1+nghostcells;ixMlo2=ixGlo2+nghostcells
     ixMlo3=ixGlo3+nghostcells;ixMhi1=ixGhi1-nghostcells
     ixMhi2=ixGhi2-nghostcells;ixMhi3=ixGhi3-nghostcells;
+    ! Set ghostcells to 0 for unused dimensions
+    if (userdim < 3) then
+       ixMlo3 = 1
+       ixMhi3 = 1
+       if (userdim < 2) then
+          ixMlo2 = 1
+          ixMhi2 = 1
+       end if
+    end if
 
     if (nbufferx1>(ixMhi1-ixMlo1+1).or.nbufferx2>(ixMhi2-ixMlo2+&
        1).or.nbufferx3>(ixMhi3-ixMlo3+1)) then
@@ -152,10 +159,10 @@ contains
     poleB=.false.
     if (.not.slab) call set_pole
 
-    ! number of grid blocks at level 1 along a dimension, which does not have a pole or periodic boundary, 
+    ! number of grid blocks at level 1 along a dimension, which does not have a pole or periodic boundary,
     ! must be larger than 1 for a rectangular AMR mesh
     if((ng1(1)/=1.or.ng2(1)/=1.or.ng3(1)/=1).and.refine_max_level>1) then
-      
+
       if(ng1(1)==1.and..not.poleB(1,1).and..not.poleB(2,&
          1).and..not.periodB(1).and..not.aperiodB(1)) then
         write(unitterm,"(a,i2,a)")&
@@ -164,8 +171,8 @@ contains
         write(unitterm,"(a,i1)") "increase domain_nx",1
         call mpistop("")
       end if
-      
-      
+
+
       if(ng2(1)==1.and..not.poleB(1,2).and..not.poleB(2,&
          2).and..not.periodB(2).and..not.aperiodB(2)) then
         write(unitterm,"(a,i2,a)")&
@@ -174,8 +181,8 @@ contains
         write(unitterm,"(a,i1)") "increase domain_nx",2
         call mpistop("")
       end if
-      
-      
+
+
       if(ng3(1)==1.and..not.poleB(1,3).and..not.poleB(2,&
          3).and..not.periodB(3).and..not.aperiodB(3)) then
         write(unitterm,"(a,i2,a)")&
@@ -184,7 +191,7 @@ contains
         write(unitterm,"(a,i1)") "increase domain_nx",3
         call mpistop("")
       end if
-      
+
     end if
 
     ! initialize connectivity data
@@ -231,7 +238,6 @@ contains
     end do
     end do
     end do
-
     ! define index ranges and MPI send/receive derived datatype for ghost-cell swap
     call init_bc()
     type_send_srl=>type_send_srl_f
@@ -241,7 +247,6 @@ contains
     type_send_p=>type_send_p_f
     type_recv_p=>type_recv_p_f
     call create_bc_mpi_datatype(iwstart,nwgc)
-
   end subroutine initialize_vars
 
 
