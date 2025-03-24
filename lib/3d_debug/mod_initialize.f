@@ -31,7 +31,13 @@ contains
     call phys_check()
 
     ! Read input files
-    call read_par_files()
+      call read_par_files()
+
+      do while (debugloop == 1)
+         call sleep(5)
+      end do
+
+
     call initialize_vars()
     call init_comm_types()
 
