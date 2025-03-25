@@ -174,23 +174,6 @@ contains
     ixCoMmin3=ixCoGmin3+nghostcells;ixCoMmax1=ixCoGmax1-nghostcells
     ixCoMmax2=ixCoGmax2-nghostcells;ixCoMmax3=ixCoGmax3-nghostcells;
 
-    if (userdim < 3) then
-       ixMmin3 = 1
-       ixMmax3 = 1
-       ixCoMmin3 = 1
-       ixCoMmax3 = 1
-       ixCoGmin3 = 1
-       ixCoGmax3 = 1
-       if (userdim < 2) then
-          ixMmin2 = 1
-          ixMmin2 = 1
-          ixCoMmin2 = 1
-          ixCoMmax2 = 1
-          ixCoGmin2 = 1
-          ixCoGmax2 = 1
-       end if
-    end if
-
     nx1=ixMmax1-ixMmin1+1;nx2=ixMmax2-ixMmin2+1;nx3=ixMmax3-ixMmin3+1;
     nxCo1=nx1/2;nxCo2=nx2/2;nxCo3=nx3/2;
 
@@ -1085,6 +1068,50 @@ contains
       ixR_p_max3( 1,2)=ixCoGmax3
 
     end if
+
+    if (userdim < 3) then
+       ixMmin3 = 1
+       ixMmax3 = 1
+       ixCoMmin3 = 1
+       ixCoMmax3 = 1
+       ixCoGmin3 = 1
+       ixCoGmax3 = 1
+
+       ixR_p_min3 = 1
+       ixR_p_max3 = 1
+       ixS_p_min3 = 1
+       ixS_p_max3 = 1
+       ixR_r_min3 = 1
+       ixR_r_max3 = 1
+       ixS_r_min3 = 1
+       ixS_r_max3 = 1
+       ixR_srl_min3 = 1
+       ixR_srl_max3 = 1
+       ixS_srl_min3 = 1
+       ixS_srl_max3 = 1
+       if (userdim < 2) then
+          ixMmin2 = 1
+          ixMmin2 = 1
+          ixCoMmin2 = 1
+          ixCoMmax2 = 1
+          ixCoGmin2 = 1
+          ixCoGmax2 = 1
+
+          ixR_p_min2 = 1
+          ixR_p_max2 = 1
+          ixS_p_min2 = 1
+          ixS_p_max2 = 1
+          ixR_r_min3 = 1
+          ixR_r_max3 = 1
+          ixS_r_min3 = 1
+          ixS_r_max3 = 1
+          ixR_srl_min2 = 1
+          ixR_srl_max2 = 1
+          ixS_srl_min2 = 1
+          ixS_srl_max2 = 1
+       end if
+    end if
+
 
   end subroutine init_bc
 
