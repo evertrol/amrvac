@@ -1548,53 +1548,55 @@ contains
       end if
     end do
 
+    if (userdim > 1) then
+       do i2=-1,1
+          if(i2==0) cycle
+          ign2=ig2+i2
+          ! blocks at periodic boundary have neighbors in the physical domain
+          ! thus threated at internal blocks with no physical boundary
+          if (periodB(2)) ign2=1+modulo(ign2-1,ng2(level))
+          if (ign2 > ng2(level)) then
+             if(phi_ > 0 .and. poleB(2,2)) then
+                ! if at a pole, the boundary is not physical boundary
+                ps(igrid)%is_physical_boundary(2*2)=.false.
+             else
+                ps(igrid)%is_physical_boundary(2*2)=.true.
+             end if
+          else if (ign2 < 1) then
+             if(phi_ > 0 .and. poleB(1,2)) then
+                ! if at a pole, the boundary is not physical boundary
+                ps(igrid)%is_physical_boundary(2*2-1)=.false.
+             else
+                ps(igrid)%is_physical_boundary(2*2-1)=.true.
+             end if
+          end if
+       end do
+    end if
 
-    do i2=-1,1
-      if(i2==0) cycle
-      ign2=ig2+i2
-      ! blocks at periodic boundary have neighbors in the physical domain
-      ! thus threated at internal blocks with no physical boundary
-      if (periodB(2)) ign2=1+modulo(ign2-1,ng2(level))
-      if (ign2 > ng2(level)) then
-         if(phi_ > 0 .and. poleB(2,2)) then
-           ! if at a pole, the boundary is not physical boundary
-           ps(igrid)%is_physical_boundary(2*2)=.false.
-         else
-           ps(igrid)%is_physical_boundary(2*2)=.true.
-         end if
-      else if (ign2 < 1) then
-         if(phi_ > 0 .and. poleB(1,2)) then
-           ! if at a pole, the boundary is not physical boundary
-           ps(igrid)%is_physical_boundary(2*2-1)=.false.
-         else
-           ps(igrid)%is_physical_boundary(2*2-1)=.true.
-         end if
-      end if
-    end do
-
-
-    do i3=-1,1
-      if(i3==0) cycle
-      ign3=ig3+i3
-      ! blocks at periodic boundary have neighbors in the physical domain
-      ! thus threated at internal blocks with no physical boundary
-      if (periodB(3)) ign3=1+modulo(ign3-1,ng3(level))
-      if (ign3 > ng3(level)) then
-         if(phi_ > 0 .and. poleB(2,3)) then
-           ! if at a pole, the boundary is not physical boundary
-           ps(igrid)%is_physical_boundary(2*3)=.false.
-         else
-           ps(igrid)%is_physical_boundary(2*3)=.true.
-         end if
-      else if (ign3 < 1) then
-         if(phi_ > 0 .and. poleB(1,3)) then
-           ! if at a pole, the boundary is not physical boundary
-           ps(igrid)%is_physical_boundary(2*3-1)=.false.
-         else
-           ps(igrid)%is_physical_boundary(2*3-1)=.true.
-         end if
-      end if
-    end do
+    if (userdim > 2) then
+       do i3=-1,1
+          if(i3==0) cycle
+          ign3=ig3+i3
+          ! blocks at periodic boundary have neighbors in the physical domain
+          ! thus threated at internal blocks with no physical boundary
+          if (periodB(3)) ign3=1+modulo(ign3-1,ng3(level))
+          if (ign3 > ng3(level)) then
+             if(phi_ > 0 .and. poleB(2,3)) then
+                ! if at a pole, the boundary is not physical boundary
+                ps(igrid)%is_physical_boundary(2*3)=.false.
+             else
+                ps(igrid)%is_physical_boundary(2*3)=.true.
+             end if
+          else if (ign3 < 1) then
+             if(phi_ > 0 .and. poleB(1,3)) then
+                ! if at a pole, the boundary is not physical boundary
+                ps(igrid)%is_physical_boundary(2*3-1)=.false.
+             else
+                ps(igrid)%is_physical_boundary(2*3-1)=.true.
+             end if
+          end if
+       end do
+    end if
 
     if(any(ps(igrid)%is_physical_boundary)) then
       phyboundblock(igrid)=.true.
@@ -1616,7 +1618,7 @@ contains
     logical, intent(in) :: alloc_once_for_ps
     integer             :: ixGsmin1,ixGsmin2,ixGsmin3,ixGsmax1,ixGsmax2,&
        ixGsmax3
-    print *, 'alloc_state'
+
     allocate(s%w(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1:nw))
     s%igrid=igrid
     s%w=0.d0
@@ -1631,7 +1633,7 @@ contains
            ixGsmin2 = 1
         end if
      end if
-     
+
     if(stagger_grid) then
       allocate(s%ws(ixGsmin1:ixGsmax1,ixGsmin2:ixGsmax2,ixGsmin3:ixGsmax3,&
          1:nws))
