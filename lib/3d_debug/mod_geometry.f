@@ -102,7 +102,7 @@ contains
     use mod_global_parameters
 
     select case (coordinate)
-    case (spherical) 
+    case (spherical)
       ! For spherical grid, check whether phi-direction is periodic
       if(periodB(ndim)) then
         if(phi_/=3) call mpistop("phi_ should be 3 in 3D spherical coord!")
@@ -124,7 +124,7 @@ contains
         end if
       end if
     case (cylindrical)
-      
+
       if (1 == phi_ .and. periodB(1)) then
         if(mod(ng1(1),2)/=0) then
           call mpistop("Number of meshes in phi-direction should be even!")
@@ -141,7 +141,7 @@ contains
           end if
         end if
       end if
-      
+
       if (2 == phi_ .and. periodB(2)) then
         if(mod(ng2(1),2)/=0) then
           call mpistop("Number of meshes in phi-direction should be even!")
@@ -158,7 +158,7 @@ contains
           end if
         end if
       end if
-      
+
       if (3 == phi_ .and. periodB(3)) then
         if(mod(ng3(1),2)/=0) then
           call mpistop("Number of meshes in phi-direction should be even!")
@@ -203,6 +203,7 @@ contains
        ixGmin3:ixGmax3), drs_ext(ixGmin1-1:ixGmax1), dx2(ixGmin1:ixGmax1,&
        ixGmin2:ixGmax2,ixGmin3:ixGmax3), dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
        ixGmin3:ixGmax3)
+    ! ER: exp_factor & variations unused?
     double precision :: exp_factor_ext(ixGmin1-1:ixGmax1),&
        del_exp_factor_ext(ixGmin1-1:ixGmax1),&
        exp_factor_primitive_ext(ixGmin1-1:ixGmax1)
@@ -217,24 +218,24 @@ contains
          1)
       x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=s%x(ixGmin1:ixGmax1,&
          ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)
-      
+
 
     case (Cartesian,Cartesian_stretched)
       drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)
-      
+
       dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)
-      
+
       dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)
 
-      
-      
-      
+
+
+
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)= dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3)
@@ -250,33 +251,38 @@ contains
          2)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,2)
       s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,3)
-     
+
       s%surfaceC(0,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=s%surfaceC(1,&
-         ixGmin2:ixGmax2,ixGmin3:ixGmax3,1);
-      s%surfaceC(ixGmin1:ixGmax1,0,ixGmin3:ixGmax3,&
-         2)=s%surfaceC(ixGmin1:ixGmax1,1,ixGmin3:ixGmax3,2);
-      s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,0,&
-         3)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,1,3);
+           ixGmin2:ixGmax2,ixGmin3:ixGmax3,1);
+      if (userdim > 1) then
+         s%surfaceC(ixGmin1:ixGmax1,0,ixGmin3:ixGmax3,&
+              2)=s%surfaceC(ixGmin1:ixGmax1,1,ixGmin3:ixGmax3,2);
+         if (userdim > 2) then
+            s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,0,&
+                 3)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,1,3);
+         end if
+      end if
+
     case (spherical)
       x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=s%x(ixGmin1:ixGmax1,&
          ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)
-      
+
       x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,2)=s%x(ixGmin1:ixGmax1,&
          ixGmin2:ixGmax2,ixGmin3:ixGmax3,2)
-     
+
       drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)
-      
+
       dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)
-     
-      
+
+
       dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)
-     
+
 
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)=(x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
@@ -286,7 +292,7 @@ contains
          ixGmin3:ixGmax3))*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
 
-      
+
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -295,16 +301,16 @@ contains
          ixGmin3:ixGmax3))*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
 
-      
+
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)*dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3)
-     
 
-      
-      
-      
+
+
+
+
       s%surfaceC(0,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=(x(1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3,1)-half*drs(1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3))**2*two*dsin(x(1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
@@ -317,7 +323,7 @@ contains
          ixGmin3:ixGmax3)
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,0,&
          3)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,1,3)
-     
+
 
       s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
@@ -325,7 +331,7 @@ contains
          2))*dsin(half*dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3))*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
-      
+
       s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -333,7 +339,7 @@ contains
          ixGmin3:ixGmax3,2))*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
 
-      
+
       s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -345,11 +351,11 @@ contains
       drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)
-      
+
       dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)
-      
+
       dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)=s%dx(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)
@@ -360,7 +366,7 @@ contains
          ixGmin3:ixGmax3))*dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3) *dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
-      
+
       if (z_==2) s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -368,8 +374,8 @@ contains
       if (phi_==2) s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3)
-     
-      
+
+
       if (z_==3) s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -377,15 +383,15 @@ contains
       if (phi_==3) s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)*dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3)
-     
-      
-      
-      
+
+
+
+
       s%surfaceC(0,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=dabs(x(1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3,1)-half*drs(1,ixGmin2:ixGmax2,ixGmin3:ixGmax3))*dx2(1,&
          ixGmin2:ixGmax2,ixGmin3:ixGmax3)*dx3(1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
-     
+
       s%surfaceC(ixGmin1:ixGmax1,0,ixGmin3:ixGmax3,&
          2)=s%surfaceC(ixGmin1:ixGmax1,1,ixGmin3:ixGmax3,2);
       s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,0,&
@@ -396,7 +402,7 @@ contains
          1))*dx2(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3) *dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)
-      
+
       if (z_==2) s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -404,7 +410,7 @@ contains
       if (phi_==2) s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          2)=drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
          ixGmin3:ixGmax3)*dx3(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3)
-      
+
       if (z_==3) s%surface(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          3)=x(ixGmin1:ixGmax1,ixGmin2:ixGmax2,ixGmin3:ixGmax3,&
          1)*drs(ixGmin1:ixGmax1,ixGmin2:ixGmax2,&
@@ -462,7 +468,7 @@ contains
            hxOmin3:hxOmax3))/((block%x(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
            jxOmin3:jxOmax3,1)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,1)))
-        
+
       case(2)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -471,8 +477,8 @@ contains
            jxOmin3:jxOmax3,2)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,2))*block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1))
-       
-        
+
+
       case(3)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -482,7 +488,7 @@ contains
            hxOmin3:hxOmax3,3))*block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1)*dsin(block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,2)))
-       
+
       end select
     case(cylindrical)
       if(idir==phi_) then
@@ -574,7 +580,7 @@ contains
            hxOmin3:hxOmax3))/((x(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
            jxOmin3:jxOmax3,1)-x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,1)))
-        
+
       case(2)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -583,8 +589,8 @@ contains
            jxOmin3:jxOmax3,2)-x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,2))*x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1))
-       
-        
+
+
       case(3)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -594,7 +600,7 @@ contains
            hxOmin3:hxOmax3,3))*x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1)*dsin(x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,2)))
-       
+
       end select
     case(cylindrical)
       if(idir==phi_) then
@@ -661,7 +667,7 @@ contains
            hxOmin3:hxOmax3))/((x(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
            jxOmin3:jxOmax3,1)-x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,1)))
-        
+
       case(2)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -670,8 +676,8 @@ contains
            jxOmin3:jxOmax3,2)-x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
            hxOmin3:hxOmax3,2))*x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1))
-       
-        
+
+
       case(3)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=(q(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -681,7 +687,7 @@ contains
            hxOmin3:hxOmax3,3))*x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,1)*dsin(x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3,2)))
-       
+
       end select
     case(cylindrical)
       if(idir==phi_) then
@@ -797,13 +803,13 @@ contains
            ixOmin3:ixOmax3)=gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)/x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
            1)
-        
+
       case(3)
         gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)=gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
            ixOmin3:ixOmax3)/(x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
            1)*dsin(x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,2)))
-       
+
       end select
     case(cylindrical)
       gradq(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -1356,7 +1362,7 @@ contains
                    ixOmin3:ixOmax3)=tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3)/dsin(block%x(ixOmin1:ixOmax1,&
                    ixOmin2:ixOmax2,ixOmin3:ixOmax3,2))
-               
+
                   case(3)
                 tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3)=(tmp(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -1366,7 +1372,7 @@ contains
                    hxOmin3:hxOmax3,3))*block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3,1)*dsin(block%x(ixOmin1:ixOmax1,&
                    ixOmin2:ixOmax2,ixOmin3:ixOmax3,2)))
-               
+
                 end select
                 if(lvc(idir,jdir,kdir)==1)then
                   curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
@@ -1430,7 +1436,7 @@ contains
                ixOmin3:ixOmax3,2)+qvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)/block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,r_)
-            
+
             if(idir==phi_) curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)=curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)-qvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -1441,7 +1447,7 @@ contains
                ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
                r_)*dsin(block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,2)))
-           
+
             enddo;
           case(Stokesbased)
             !if(ndim<3) call mpistop("Stokesbased for 3D spherical only")
@@ -1753,7 +1759,7 @@ contains
                      2)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,2))*block%x(ixOmin1:ixOmax1,&
                      ixOmin2:ixOmax2,ixOmin3:ixOmax3,1))
-                 
+
                       case(3)
                   ! handles d V_phi/dZ or d V_R/dZ
                   tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -1763,7 +1769,7 @@ contains
                      jxOmin2:jxOmax2,jxOmin3:jxOmax3,&
                      3)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,3))
-                 
+
                   end select
                 end if
                 if(phi_==3.or.phi_==-1) then
@@ -1795,7 +1801,7 @@ contains
                      jxOmin2:jxOmax2,jxOmin3:jxOmax3,&
                      2)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,2))
-                 
+
                       case(3)
                   ! handles (1/R)d V_Z/dphi or (1/R)d V_R/dphi
                   tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -1806,7 +1812,7 @@ contains
                      3)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,3))*block%x(ixOmin1:ixOmax1,&
                      ixOmin2:ixOmax2,ixOmin3:ixOmax3,1))
-                 
+
                   end select
                 end if
                 if(lvc(idir,jdir,kdir)==1)then
@@ -2372,7 +2378,7 @@ contains
                    ixOmin3:ixOmax3)=tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3)/dsin(block%x(ixOmin1:ixOmax1,&
                    ixOmin2:ixOmax2,ixOmin3:ixOmax3,2))
-               
+
                   case(3)
                 tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3)=(tmp(jxOmin1:jxOmax1,jxOmin2:jxOmax2,&
@@ -2382,7 +2388,7 @@ contains
                    hxOmin3:hxOmax3,3))*block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                    ixOmin3:ixOmax3,1)*dsin(block%x(ixOmin1:ixOmax1,&
                    ixOmin2:ixOmax2,ixOmin3:ixOmax3,2)))
-               
+
                 end select
                 if(lvc(idir,jdir,kdir)==1)then
                   curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
@@ -2446,7 +2452,7 @@ contains
                ixOmin3:ixOmax3,2)+qvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)/block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,r_)
-            
+
             if(idir==phi_) curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)=curlvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,phi_)-qvec(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -2457,7 +2463,7 @@ contains
                ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
                r_)*dsin(block%x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
                ixOmin3:ixOmax3,2)))
-           
+
             enddo;
           case(Stokesbased)
             !if(ndim<3) call mpistop("Stokesbased for 3D spherical only")
@@ -2769,7 +2775,7 @@ contains
                      2)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,2))*block%x(ixOmin1:ixOmax1,&
                      ixOmin2:ixOmax2,ixOmin3:ixOmax3,1))
-                 
+
                       case(3)
                   ! handles d V_phi/dZ or d V_R/dZ
                   tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -2779,7 +2785,7 @@ contains
                      jxOmin2:jxOmax2,jxOmin3:jxOmax3,&
                      3)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,3))
-                 
+
                   end select
                 end if
                 if(phi_==3.or.phi_==-1) then
@@ -2811,7 +2817,7 @@ contains
                      jxOmin2:jxOmax2,jxOmin3:jxOmax3,&
                      2)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,2))
-                 
+
                       case(3)
                   ! handles (1/R)d V_Z/dphi or (1/R)d V_R/dphi
                   tmp2(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -2822,7 +2828,7 @@ contains
                      3)-block%x(hxOmin1:hxOmax1,hxOmin2:hxOmax2,&
                      hxOmin3:hxOmax3,3))*block%x(ixOmin1:ixOmax1,&
                      ixOmin2:ixOmax2,ixOmin3:ixOmax3,1))
-                 
+
                   end select
                 end if
                 if(lvc(idir,jdir,kdir)==1)then
