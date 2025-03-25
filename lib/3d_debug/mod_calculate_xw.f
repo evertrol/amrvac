@@ -90,7 +90,7 @@ contains
              w(ix1,jxCmin2:jxCmax2,jxCmin3:jxCmax3,&
                 nw-nwextra+1:nw) = w(jxCmax1+1,jxCmin2:jxCmax2,jxCmin3:jxCmax3,&
                 nw-nwextra+1:nw)
-         end do 
+         end do
        case(2)
          jxCmin1=ixGlo1;jxCmin2=ixGhi2+1-nghostcells;jxCmin3=ixGlo3;
          jxCmax1=ixGhi1;jxCmax2=ixGhi2;jxCmax3=ixGhi3;
@@ -105,7 +105,7 @@ contains
              w(jxCmin1:jxCmax1,ix2,jxCmin3:jxCmax3,&
                 nw-nwextra+1:nw) = w(jxCmin1:jxCmax1,jxCmax2+1,jxCmin3:jxCmax3,&
                 nw-nwextra+1:nw)
-         end do 
+         end do
        case(3)
          jxCmin1=ixGlo1;jxCmin2=ixGlo2;jxCmin3=ixGhi3+1-nghostcells;
          jxCmax1=ixGhi1;jxCmax2=ixGhi2;jxCmax3=ixGhi3;
@@ -120,7 +120,7 @@ contains
              w(jxCmin1:jxCmax1,jxCmin2:jxCmax2,ix3,&
                 nw-nwextra+1:nw) = w(jxCmin1:jxCmax1,jxCmin2:jxCmax2,jxCmax3+1,&
                 nw-nwextra+1:nw)
-         end do 
+         end do
       end select
      end do
     end if
@@ -276,19 +276,19 @@ contains
           x_TEC(1:ndim)=xC(ix1,ix2,ix3,1:ndim)
           w_TEC(1:nw+nwauxio)=wC(ix1,ix2,ix3,1:nw+nwauxio)
        case (cylindrical)
-          
-          
-          
+
+
+
           x_TEC(1)=xC(ix1,ix2,ix3,1)*cos(xC(ix1,ix2,ix3,phi_))
           x_TEC(2)=xC(ix1,ix2,ix3,1)*sin(xC(ix1,ix2,ix3,phi_))
           x_TEC(3)=xC(ix1,ix2,ix3,z_)
 
           if (nvector>0) then
-             
 
-             
 
-             
+
+
+
              normal(1,1)=cos(xC(ix1,ix2,ix3,phi_))
              normal(1,phi_)=-sin(xC(ix1,ix2,ix3,phi_))
              normal(1,z_)=zero
@@ -315,21 +315,21 @@ contains
        case (spherical)
           x_TEC(1)=xC(ix1,ix2,ix3,1)*sin(xC(ix1,ix2,ix3,2))*cos(xC(ix1,ix2,ix3,&
              3))
-          
-          
+
+
           x_TEC(2)=xC(ix1,ix2,ix3,1)*sin(xC(ix1,ix2,ix3,2))*sin(xC(ix1,ix2,ix3,&
              3))
           x_TEC(3)=xC(ix1,ix2,ix3,1)*cos(xC(ix1,ix2,ix3,2))
 
           if (nvector>0) then
-             
-             
+
+
              normal(1,1)=sin(xC(ix1,ix2,ix3,2))*cos(xC(ix1,ix2,ix3,3))
              normal(1,2)=cos(xC(ix1,ix2,ix3,2))*cos(xC(ix1,ix2,ix3,3))
              normal(1,3)=-sin(xC(ix1,ix2,ix3,3))
 
-             
-             
+
+
              normal(2,1)=sin(xC(ix1,ix2,ix3,2))*sin(xC(ix1,ix2,ix3,3))
              normal(2,2)=cos(xC(ix1,ix2,ix3,2))*sin(xC(ix1,ix2,ix3,3))
              normal(2,3)=cos(xC(ix1,ix2,ix3,3))
@@ -425,13 +425,13 @@ contains
           xandwnamei(1)="r"; xandwnamei(2)="Theta"; xandwnamei(3)="Phi"
        case( cylindrical )
           xandwnamei(1)="R";
-          
+
           if( phi_ == 2 )then
              xandwnamei(2)="Phi"
           else
              xandwnamei(2)="Z"
           endif
-          
+
           if( phi_ == 2 )then
              xandwnamei(3)="Z"
           else
@@ -446,13 +446,13 @@ contains
     ! in outfilehead, collect the dimensional names, and all output variable names
     ! first all dimensions
     write(outfilehead,'(a)') TRIM(xandwnamei(1))
-    
+
     do iw=2,ndim
        wname=xandwnamei(iw)
     write(outfilehead,'(a)')outfilehead(1:len_trim(outfilehead))//" "//TRIM(&
        wname)
     enddo
-   
+
     ! then all nw variables, with w_write control for inclusion
     do iw=ndim+1,ndim+nw
        wname=xandwnamei(iw)
@@ -497,7 +497,7 @@ contains
   end subroutine getheadernames
 
   !> computes cell corner (xC) and cell center (xCC) coordinates
-  subroutine calc_x(igrid,xC,xCC)
+  subroutine calc_x_old(igrid,xC,xCC)
     use mod_global_parameters
 
     integer, intent(in)               :: igrid
@@ -540,6 +540,75 @@ contains
          xC(ixCmin1:ixCmax1,ixCmin2:ixCmax2,ix,3)=ps(igrid)%x(ixCmin1:ixCmax1,&
             ixCmin2:ixCmax2,ix,3)+0.5d0*ps(igrid)%dx(ixCmin1:ixCmax1,&
             ixCmin2:ixCmax2,ix,3)
+       end do
+    endif
+
+  end subroutine calc_x_old
+
+  !> computes cell corner (xC) and cell center (xCC) coordinates
+  subroutine calc_x(igrid,xC,xCC)
+    use mod_global_parameters
+
+    integer, intent(in)               :: igrid
+    !double precision, intent(out)     :: xC(ixMlo1-1:ixMhi1,ixMlo2-1:ixMhi2,&
+    !   ixMlo3-1:ixMhi3,ndim)
+    !double precision, intent(out)     :: xCC(ixMlo1:ixMhi1,ixMlo2:ixMhi2,&
+    !   ixMlo3:ixMhi3,ndim)
+    double precision, dimension(:, :, :, :), intent(out) :: xC, xCC
+
+    integer                           :: ixCmin1,ixCmin2,ixCmin3,ixCmax1,&
+       ixCmax2,ixCmax3, idims, level, ix
+    integer, dimension(3) :: offset, Coffset
+
+    level=node(plevel_,igrid)
+
+    ! coordinates of cell corners
+    ixCmin1=ixMlo1-1;ixCmin2=ixMlo2-1;ixCmin3=ixMlo3-1; ixCmax1=ixMhi1
+    ixCmax2=ixMhi2;ixCmax3=ixMhi3;
+
+    if (userdim < 3) then
+       ixCmin3 = 1
+       ixCmax3 = 1
+       if (userdim < 2) then
+          ixCmin2 = 1
+          ixCmax2 = 1
+       end if
+    end if
+    offset = [ixMlo1-1, ixMlo2-1, ixMlo3-1]
+    Coffset = [ixCmin1-1, ixCmin2-1, ixCmin3-1]
+
+    ! coordinates of cell centers
+    !xCC(ixMlo1:ixMhi1,ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)=ps(igrid)%x(ixMlo1:ixMhi1,&
+    !   ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)
+    xCC(ixMlo1-offset(1):ixMhi1-offset(1),ixMlo2-offset(2):ixMhi2-offset(2),&
+         ixMlo3-offset(3):ixMhi3-offset(3),:)=ps(igrid)%x(ixMlo1:ixMhi1,&
+       ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)
+
+    if(slab_uniform)then
+       do idims=1,ndim
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),&
+               ixCmin3-Coffset(3):ixCmax3-Coffset(3), idims)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,ixCmin2:ixCmax2,ixCmin3:ixCmax3,&
+            idims)+0.5d0*dx(idims,level)
+       end do
+    else
+       ! for any non-cartesian or stretched coordinate (allow multiple stretched directions)
+       do ix=ixCmin1,ixCmax1
+          xC(ix-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),ixCmin3-Coffset(3):ixCmax3-Coffset(3),1)=&
+               ps(igrid)%x(ix,&
+            ixCmin2:ixCmax2,ixCmin3:ixCmax3,1)+0.5d0*ps(igrid)%dx(ix,&
+            ixCmin2:ixCmax2,ixCmin3:ixCmax3,1)
+       end do
+       do ix=ixCmin2,ixCmax2
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ix-Coffset(2),ixCmin3-Coffset(3):ixCmax3-Coffset(3),2)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,&
+            ix,ixCmin3:ixCmax3,2)+0.5d0*ps(igrid)%dx(ixCmin1:ixCmax1,ix,&
+            ixCmin3:ixCmax3,2)
+       end do
+       do ix=ixCmin3,ixCmax3
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),ix-Coffset(3),3)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,&
+            ixCmin2:ixCmax2,ix,3)+0.5d0*ps(igrid)%dx(ixCmin1:ixCmax1,ixCmin2:ixCmax2,ix,3)
        end do
     endif
 
