@@ -2169,7 +2169,7 @@ contains
     case (fileout_)
        ! Write .dat snapshot
        call write_snapshot()
-
+       autoconvert = .false.
        ! Generate formatted output (e.g., VTK)
        if(autoconvert) call generate_plotfile
 
