@@ -53,7 +53,7 @@ program amrvac
      ! read in dat file
      call read_snapshot()
 
-     ! rewrite it=0 snapshot when restart from it=0 state 
+     ! rewrite it=0 snapshot when restart from it=0 state
      if(it==0.and.itsave(1,2)==0) snapshotnext=snapshotnext-1
 
      if (reset_time) then
@@ -236,7 +236,17 @@ contains
     timeloop0=MPI_WTIME()
     time_bc=0.d0
     time_write=0.d0
-    ncells_block={(ixGhi^D-2*nghostcells)*}
+    !ncells_block={(ixGhi^D-2*nghostcells)*}
+    select case(userdim)
+       case(1)
+          ncells_block=(ixGhi1-2*nghostcells)
+       case(2)
+          ncells_block=(ixGhi1-2*nghostcells)*(ixGhi2-2*nghostcells)
+       case(3)
+          ncells_block=(ixGhi1-2*nghostcells)*(ixGhi2-2*nghostcells)*(ixGhi3-2*nghostcells)
+       case default
+          ncells_block = 1
+       end select
     ncells_update=0
     dt_loop=0.d0
 
