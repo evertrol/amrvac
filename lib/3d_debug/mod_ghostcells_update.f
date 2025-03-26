@@ -1101,10 +1101,10 @@ contains
           ixR_p_max2 = 1
           ixS_p_min2 = 1
           ixS_p_max2 = 1
-          ixR_r_min3 = 1
-          ixR_r_max3 = 1
-          ixS_r_min3 = 1
-          ixS_r_max3 = 1
+          ixR_r_min2 = 1
+          ixR_r_max2 = 1
+          ixS_r_min2 = 1
+          ixS_r_max2 = 1
           ixR_srl_min2 = 1
           ixR_srl_max2 = 1
           ixS_srl_min2 = 1
