@@ -5,9 +5,9 @@ module mod_amr_solution_node
   private
 
   public :: getnode, putnode
-  public :: alloc_node, alloc_state 
-  public :: dealloc_node 
- 
+  public :: alloc_node, alloc_state
+  public :: dealloc_node
+
 contains
 
 
@@ -15,19 +15,19 @@ contains
   integer function getnode(ipe)
     use mod_forest, only: igrid_inuse
     use mod_global_parameters
-  
+
     integer, intent(in) :: ipe
     integer :: igrid, igrid_available
-  
+
     igrid_available=0
-  
+
     do igrid=1,max_blocks
        if (igrid_inuse(igrid,ipe)) cycle
-  
+
        igrid_available=igrid
        exit
     end do
-  
+
     if (igrid_available == 0) then
        getnode = -1
        print *, "Current maximum number of grid blocks:", max_blocks
@@ -36,26 +36,26 @@ contains
        getnode=igrid_available
        igrid_inuse(igrid,ipe)=.true.
     end if
-  
+
     if (ipe==mype) then
        ! initialize nodal block
        node(1:nodehi,getnode) = 0
        rnode(1:rnodehi,getnode) = zero
     end if
-  
+
   end function getnode
-  
+
   ! put igrid on processor ipe to be not in use
   subroutine putnode(igrid,ipe)
     use mod_forest
     implicit none
-  
+
     integer, intent(in) :: igrid, ipe
-  
+
     igrid_inuse(igrid,ipe)=.false.
-  
+
   end subroutine putnode
-  
+
   !> allocate arrays on igrid node
   subroutine alloc_node(igrid)
     use mod_forest
@@ -63,10 +63,10 @@ contains
     use mod_geometry
     use mod_usr_methods, only: usr_set_surface
     use mod_physics, only: phys_set_equi_vars
-    use mod_b0, only: set_B0_grid 
- 
+    use mod_b0, only: set_B0_grid
+
     integer, intent(in) :: igrid
-  
+
     integer :: level, ig^D, ign^D, ixCoG^L, ix, i^D
     integer :: imin, imax, index, igCo^D, ixshift, offset, ifirst
     integer :: icase, ixGext^L
@@ -76,10 +76,19 @@ contains
     double precision :: exp_factor_ext(ixGlo1-1:ixGhi1+1),del_exp_factor_ext(ixGlo1-1:ixGhi1+1),exp_factor_primitive_ext(ixGlo1-1:ixGhi1+1)
     double precision :: xc(ixGlo1:ixGhi1),delxc(ixGlo1:ixGhi1)
     double precision :: exp_factor_coarse(ixGlo1:ixGhi1),del_exp_factor_coarse(ixGlo1:ixGhi1),exp_factor_primitive_coarse(ixGlo1:ixGhi1)
-  
+
     ixCoGmin^D=1;
     ixCoGmax^D=(ixGhi^D-2*nghostcells)/2+2*nghostcells;
-  
+
+#if defined(NDIM) && NDIM == 3
+    if (userdim < 3) then
+       ixCoGmax3 = 1
+       if (userdim < 2) then
+          ixCoGmax2 = 1
+       end if
+    end if
+#endif
+
     icase=mod(nghostcells,2)
     if(stagger_grid) icase=1
     select case(icase)
@@ -93,12 +102,12 @@ contains
       case default
         call mpistop("no such case")
     end select
-  
+
     ! set level information
     level=igrid_to_node(igrid,mype)%node%level
-  
+
     if(.not. allocated(ps(igrid)%w)) then
-  
+
       ! allocate arrays for solution and space
       call alloc_state(igrid, ps(igrid), ixG^LL, ixGext^L, .true.)
       ! allocate arrays for one level coarser solution
@@ -106,7 +115,7 @@ contains
       if(.not.convert) then
         ! allocate arrays for temp solution 1
         call alloc_state(igrid, ps1(igrid), ixG^LL, ixGext^L, .false.)
-  
+
         ! allocate temporary solution space
         select case (t_integrator)
         case(ssprk3,ssprk4,IMEX_Midpoint,IMEX_Trapezoidal,IMEX_222)
@@ -120,9 +129,9 @@ contains
           call alloc_state(igrid, ps4(igrid), ixG^LL, ixGext^L, .false.)
         end select
       end if
-  
+
     end if
-  
+
     ! avoid dividing by zero rho in skipped corner ghostcells when phys_req_diagonal=F
     ps(igrid)%w(:^D&,1)=1.d0
     ps(igrid)%level=level
@@ -144,25 +153,25 @@ contains
         ps4(igrid)%level=level
       end select
     end if
-  
+
     ! block pointer to current block
     block=>ps(igrid)
-  
+
     ig^D=igrid_to_node(igrid,mype)%node%ig^D;
-  
+
     node(plevel_,igrid)=level
     ^D&node(pig^D_,igrid)=ig^D\
-  
+
     ! set dx information
     ^D&rnode(rpdx^D_,igrid)=dx(^D,level)\
     dxlevel(:)=dx(:,level)
-  
+
     ! uniform cartesian case as well as all unstretched coordinates
     ! determine the minimal and maximal corners
     ^D&rnode(rpxmin^D_,igrid)=xprobmin^D+dble(ig^D-1)*dg^D(level)\
     ^D&rnode(rpxmax^D_,igrid)=xprobmin^D+dble(ig^D)*dg^D(level)\
    {if(rnode(rpxmax^D_,igrid)>xprobmax^D) rnode(rpxmax^D_,igrid)=xprobmax^D\}
-  
+
     ^D&dx^D=rnode(rpdx^D_,igrid)\
    {do ix=ixGlo^D,ixMhi^D-nghostcells
       ps(igrid)%x(ix^D%ixG^T,^D)=rnode(rpxmin^D_,igrid)+(dble(ix-nghostcells)-half)*dx^D
@@ -171,19 +180,19 @@ contains
    {do ix=ixMhi^D-nghostcells+1,ixGhi^D
       ps(igrid)%x(ix^D%ixG^T,^D)=rnode(rpxmax^D_,igrid)+(dble(ix-ixMhi^D)-half)*dx^D
     end do\}
-  
+
     ^D&dx^D=2.0d0*rnode(rpdx^D_,igrid)\
    {do ix=ixCoGmin^D,ixCoGmax^D
       psc(igrid)%x(ix^D%ixCoG^S,^D)=rnode(rpxmin^D_,igrid)+(dble(ix-nghostcells)-half)*dx^D
     end do\}
-  
+
     ^D&ps(igrid)%dx(ixGext^S,^D)=rnode(rpdx^D_,igrid);
     ^D&psc(igrid)%dx(ixCoG^S,^D)=2.0d0*rnode(rpdx^D_,igrid);
     ^D&dx^D=rnode(rpdx^D_,igrid)\
    {do ix=ixGextmin^D,ixGextmax^D
       xext(ix^D%ixGext^S,^D)=rnode(rpxmin^D_,igrid)+(dble(ix-nghostcells)-half)*dx^D
     end do\}
-  
+
     if(any(stretched_dim)) then
      {if(stretch_type(^D) == stretch_uni)then
         imin=(ig^D-1)*block_nx^D
@@ -457,7 +466,7 @@ contains
          end select
        endif\}
     endif
-  
+
     ! calculate area of cell surfaces for standard block
     call get_surface_area(ps(igrid),ixG^LL)
     ! calculate area of cell surfaces for coarser representative block
@@ -539,11 +548,11 @@ contains
       case default
         call mpistop("Sorry, coordinate unknown")
     end select
-  
+
     ! initialize background non-evolving solution
     if (B0field) call set_B0_grid(igrid)
     if (number_equi_vars>0) call phys_set_equi_vars(igrid)
-  
+
     ! find the blocks on the boundaries
     ps(igrid)%is_physical_boundary=.false.
     {
@@ -575,9 +584,9 @@ contains
     else
       phyboundblock(igrid)=.false.
     end if
-  
+
   end subroutine alloc_node
-  
+
   !> allocate memory to physical state of igrid node
   subroutine alloc_state(igrid, s, ixG^L, ixGext^L, alloc_once_for_ps)
     use mod_global_parameters
@@ -585,12 +594,22 @@ contains
     integer, intent(in) :: igrid, ixG^L, ixGext^L
     logical, intent(in) :: alloc_once_for_ps
     integer             :: ixGs^L
-  
+
     allocate(s%w(ixG^S,1:nw))
     s%igrid=igrid
     s%w=0.d0
     s%ixG^L=ixG^L;
     {^D& ixGsmin^D = ixGmin^D-1; ixGsmax^D = ixGmax^D|;}
+
+#if defined(NDIM) && NDIM == 3
+     if (userdim < 3) then
+        ixGsmin3 = 1
+        if (userdim < 2) then
+           ixGsmin2 = 1
+        end if
+     end if
+#endif
+
     if(stagger_grid) then
       allocate(s%ws(ixGs^S,1:nws))
       s%ws=0.d0
@@ -615,7 +634,7 @@ contains
       if(local_timestep) then
         allocate(s%dt(ixG^S))
       endif
-  
+
       if(B0field) then
         allocate(s%B0(ixG^S,1:ndir,0:ndim))
         allocate(s%J0(ixG^S,7-2*ndir:3))
@@ -623,7 +642,7 @@ contains
       if(number_equi_vars > 0) then
         allocate(s%equi_vars(ixG^S,1:number_equi_vars,0:ndim))
       endif
-  
+
       ! allocate space for special values for each block state
       if(phys_trac) then
         ! special_values(1) Tcoff local
@@ -652,14 +671,14 @@ contains
       if(phys_trac) s%special_values=>ps(igrid)%special_values
     end if
   end subroutine alloc_state
-  
+
   !> allocate memory to one-level coarser physical state of igrid node
   subroutine alloc_state_coarse(igrid, s, ixG^L, ixGext^L)
     use mod_global_parameters
     type(state) :: s
     integer, intent(in) :: igrid, ixG^L, ixGext^L
     integer             :: ixGs^L
-  
+
     allocate(s%w(ixG^S,1:nw))
     s%igrid=igrid
     s%w=0.d0
@@ -683,13 +702,13 @@ contains
     ! allocate physical boundary flag
     allocate(s%is_physical_boundary(2*ndim))
   end subroutine alloc_state_coarse
-  
+
   subroutine dealloc_state(igrid, s,dealloc_x)
     use mod_global_parameters
     integer, intent(in) :: igrid
     type(state) :: s
     logical, intent(in) :: dealloc_x
-  
+
     deallocate(s%w)
     if(stagger_grid) then
       deallocate(s%ws)
@@ -720,12 +739,12 @@ contains
       if(nw_extra>0) nullify(s%wextra)
     end if
   end subroutine dealloc_state
-  
+
   subroutine dealloc_state_coarse(igrid, s)
     use mod_global_parameters
     integer, intent(in) :: igrid
     type(state) :: s
-  
+
     deallocate(s%w)
     if(stagger_grid) then
       deallocate(s%ws)
@@ -740,16 +759,16 @@ contains
     deallocate(s%surfaceC,s%surface)
     deallocate(s%is_physical_boundary)
   end subroutine dealloc_state_coarse
-  
+
   subroutine dealloc_node(igrid)
     use mod_global_parameters
-  
+
     integer, intent(in) :: igrid
-  
+
     if (igrid==0) then
        call mpistop("trying to delete a non-existing grid in dealloc_node")
     end if
-  
+
     call dealloc_state(igrid, ps(igrid),.true.)
     call dealloc_state_coarse(igrid, psc(igrid))
     if(.not.convert) then
@@ -767,7 +786,7 @@ contains
         call dealloc_state(igrid, ps4(igrid),.false.)
       end select
     end if
-  
+
   end subroutine dealloc_node
 
 end module mod_amr_solution_node
