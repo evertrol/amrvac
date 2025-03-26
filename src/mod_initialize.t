@@ -88,7 +88,11 @@ contains
     neighbor_pole=0
 
     ! check resolution
+#if defined(NDIM) && NDIM == 3
+    if ((mod(ixGhi1,2) /= 0) .or. ((userdim > 1) .and. mod(ixGhi2,&
+       2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then                                                                                         #else
     if ({mod(ixGhi^D,2)/=0|.or.}) then
+#endif
        call mpistop("mesh widths must give even number grid points")
     end if
     ixM^LL=ixG^LL^LSUBnghostcells;
@@ -127,7 +131,7 @@ contains
     poleB=.false.
     if (.not.slab) call set_pole
 
-    ! number of grid blocks at level 1 along a dimension, which does not have a pole or periodic boundary, 
+    ! number of grid blocks at level 1 along a dimension, which does not have a pole or periodic boundary,
     ! must be larger than 1 for a rectangular AMR mesh
     if(({ng^D(1)/=1|.or.}).and.refine_max_level>1) then
       {
