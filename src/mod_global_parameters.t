@@ -61,6 +61,9 @@ module mod_global_parameters
   !> Number of spatial dimensions for grid variables
   integer, parameter :: ndim=^ND
 
+  !> User selected dimensions
+  integer :: userdim=3
+
   !> Number of spatial dimensions (components) for vector variables
   integer :: ndir=ndim
 
@@ -367,7 +370,7 @@ module mod_global_parameters
   logical :: fix_small_values=.false.
 
   !> split magnetic field as background B0 field
-  ! TODO these should be moved in a different file  
+  ! TODO these should be moved in a different file
   logical :: B0field=.false.
   logical :: B0fieldAllocCoarse=.false.
 
@@ -718,7 +721,7 @@ module mod_global_parameters
   character(len=std_len) :: filename_whitelight
   !> white light observation instrument
   character(len=std_len) :: whitelight_instrument
-  !> the white light emission below it (unit=Rsun) is not visible 
+  !> the white light emission below it (unit=Rsun) is not visible
   double precision :: R_occultor
   !> direction of the line of sight (LOS)
   double precision :: LOS_theta,LOS_phi
