@@ -96,7 +96,16 @@ contains
        call mpistop("mesh widths must give even number grid points")
     end if
     ixM^LL=ixG^LL^LSUBnghostcells;
-
+#if defined(NDIM) && NDIM == 3
+    if (userdim < 3) then
+       ixMlo3 = 1
+       ixMhi3 = 1
+       if (userdim < 2) then
+          ixMlo2 = 1
+          ixMhi2 = 1
+       end if
+    end if
+#endif
     if (nbufferx^D>(ixMhi^D-ixMlo^D+1)|.or.) then
        write(unitterm,*) "nbufferx^D bigger than mesh size makes no sense."
        write(unitterm,*) "Decrease nbufferx or increase mesh size"
