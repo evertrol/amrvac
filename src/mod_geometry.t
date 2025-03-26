@@ -210,7 +210,20 @@ contains
       s%surface(ixG^S,2)=s%surfaceC(ixG^S,2)
       s%surface(ixG^S,3)=s%surfaceC(ixG^S,3)
       }
+#if defined(NDIM) && NDIM == 3
+      s%surfaceC(0,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=s%surfaceC(1,&
+           ixGmin2:ixGmax2,ixGmin3:ixGmax3,1);
+      if (userdim > 1) then
+         s%surfaceC(ixGmin1:ixGmax1,0,ixGmin3:ixGmax3,&
+              2)=s%surfaceC(ixGmin1:ixGmax1,1,ixGmin3:ixGmax3,2);
+         if (userdim > 2) then
+            s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,0,&
+                 3)=s%surfaceC(ixGmin1:ixGmax1,ixGmin2:ixGmax2,1,3);
+         end if
+      end if
+#else
       {s%surfaceC(0^D%ixG^S,^D)=s%surfaceC(1^D%ixG^S,^D);\}
+#endif
     case (spherical)
       x(ixG^S,1)=s%x(ixG^S,1)
       {^NOONED
