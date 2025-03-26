@@ -428,7 +428,7 @@ contains
     !and                        T=p/rho
     use mod_global_parameters
     use mod_thermal_conduction, only: get_tc_dt_hd
- 
+
     integer, intent(in) :: ixImin1,ixImin2,ixImin3,ixImax1,ixImax2,ixImax3,&
         ixOmin1,ixOmin2,ixOmin3,ixOmax1,ixOmax2,ixOmax3
     double precision, intent(in) :: dx1,dx2,dx3, x(ixImin1:ixImax1,&
@@ -538,26 +538,26 @@ contains
       ! list parameters
       integer :: ncool = 4000
       double precision :: cfrac=0.1d0
-    
+
       !> Name of cooling curve
       character(len=std_len)  :: coolcurve='JCcorona'
-    
+
       !> Name of cooling method
       character(len=std_len)  :: coolmethod='exact'
-    
+
       !> Fixed temperature not lower than tlow
       logical    :: Tfix=.false.
-    
+
       !> Lower limit of temperature
       double precision   :: tlow=bigdouble
-    
+
       !> Add cooling source in a split way (.true.) or un-split way (.false.)
       logical    :: rc_split=.false.
 
 
       namelist /rc_list/ coolcurve, coolmethod, ncool, cfrac, tlow, Tfix,&
           rc_split
-  
+
       do n = 1, size(par_files)
         open(unitpar, file=trim(par_files(n)), status="old")
         read(unitpar, rc_list, end=111)
@@ -594,7 +594,7 @@ contains
         ! implicit dust update
         phys_implicit_update => dust_implicit_update
         phys_evaluate_implicit => dust_evaluate_implicit
-    endif  
+    endif
 
   end subroutine hd_check_params
 
@@ -1011,7 +1011,7 @@ contains
        ixPmax3
     logical :: lrlt(ixImin1:ixImax1,ixImin2:ixImax2,ixImin3:ixImax3)
 
-    
+
   end subroutine hd_get_tcutoff
 
   !> Calculate cmax_idim = csound + abs(v_idim) within ixO^L
@@ -1692,7 +1692,7 @@ contains
           ixOmin3:ixOmax3) / x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,ixOmin3:ixOmax3,&
            1)
 
-       
+
        ! s[mtheta]=-(mr*mtheta/rho)/r+cot(theta)*(mphi**2/rho+p)/r
        source(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
           ixOmin3:ixOmax3) = pth(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
@@ -1738,7 +1738,7 @@ contains
             ixOmin3:ixOmax3) / x(ixOmin1:ixOmax1,ixOmin2:ixOmax2,&
             ixOmin3:ixOmax3, 1)
        end if
-      
+
     end select
 
     if (hd_viscosity) call visc_add_source_geom(qdt,ixImin1,ixImin2,ixImin3,&
