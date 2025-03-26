@@ -90,7 +90,8 @@ contains
     ! check resolution
 #if defined(NDIM) && NDIM == 3
     if ((mod(ixGhi1,2) /= 0) .or. ((userdim > 1) .and. mod(ixGhi2,&
-       2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then                                                                                         #else
+       2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then
+#else
     if ({mod(ixGhi^D,2)/=0|.or.}) then
 #endif
        call mpistop("mesh widths must give even number grid points")
