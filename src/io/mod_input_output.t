@@ -1473,7 +1473,7 @@ contains
 #if defined(NDIM) && NDIM == 3
     if (block_nx3 == 0) then
        block_nx3 = 4
-       ixxGhi3 = 1
+       ixGhi3 = 1
        ixGshi3 = 1
        userdim = 2
        if (block_nx2 == 0) then
