@@ -416,6 +416,76 @@ contains
 
   end subroutine getheadernames
 
+#if defined(NDIM) && NDIM == 3
+  !> computes cell corner (xC) and cell center (xCC) coordinates
+  subroutine calc_x(igrid,xC,xCC)
+    use mod_global_parameters
+
+    integer, intent(in)               :: igrid
+    !double precision, intent(out)     :: xC(ixMlo1-1:ixMhi1,ixMlo2-1:ixMhi2,&
+    !   ixMlo3-1:ixMhi3,ndim)
+    !double precision, intent(out)     :: xCC(ixMlo1:ixMhi1,ixMlo2:ixMhi2,&
+    !   ixMlo3:ixMhi3,ndim)
+    double precision, dimension(:, :, :, :), intent(out) :: xC, xCC
+
+    integer                           :: ixCmin1,ixCmin2,ixCmin3,ixCmax1,&
+       ixCmax2,ixCmax3, idims, level, ix
+    integer, dimension(3) :: offset, Coffset
+
+    level=node(plevel_,igrid)
+
+    ! coordinates of cell corners
+    ixCmin1=ixMlo1-1;ixCmin2=ixMlo2-1;ixCmin3=ixMlo3-1; ixCmax1=ixMhi1
+    ixCmax2=ixMhi2;ixCmax3=ixMhi3;
+
+    if (userdim < 3) then
+       ixCmin3 = 1
+       ixCmax3 = 1
+       if (userdim < 2) then
+          ixCmin2 = 1
+          ixCmax2 = 1
+       end if
+    end if
+    offset = [ixMlo1-1, ixMlo2-1, ixMlo3-1]
+    Coffset = [ixCmin1-1, ixCmin2-1, ixCmin3-1]
+
+    ! coordinates of cell centers
+    !xCC(ixMlo1:ixMhi1,ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)=ps(igrid)%x(ixMlo1:ixMhi1,&
+    !   ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)
+    xCC(ixMlo1-offset(1):ixMhi1-offset(1),ixMlo2-offset(2):ixMhi2-offset(2),&
+         ixMlo3-offset(3):ixMhi3-offset(3),:)=ps(igrid)%x(ixMlo1:ixMhi1,&
+       ixMlo2:ixMhi2,ixMlo3:ixMhi3,:)
+
+    if(slab_uniform)then
+       do idims=1,ndim
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),&
+               ixCmin3-Coffset(3):ixCmax3-Coffset(3), idims)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,ixCmin2:ixCmax2,ixCmin3:ixCmax3,&
+            idims)+0.5d0*dx(idims,level)
+       end do
+    else
+       ! for any non-cartesian or stretched coordinate (allow multiple stretched directions)
+       do ix=ixCmin1,ixCmax1
+          xC(ix-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),ixCmin3-Coffset(3):ixCmax3-Coffset(3),1)=&
+               ps(igrid)%x(ix,&
+            ixCmin2:ixCmax2,ixCmin3:ixCmax3,1)+0.5d0*ps(igrid)%dx(ix,&
+            ixCmin2:ixCmax2,ixCmin3:ixCmax3,1)
+       end do
+       do ix=ixCmin2,ixCmax2
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ix-Coffset(2),ixCmin3-Coffset(3):ixCmax3-Coffset(3),2)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,&
+            ix,ixCmin3:ixCmax3,2)+0.5d0*ps(igrid)%dx(ixCmin1:ixCmax1,ix,&
+            ixCmin3:ixCmax3,2)
+       end do
+       do ix=ixCmin3,ixCmax3
+          xC(ixCmin1-Coffset(1):ixCmax1-Coffset(1),ixCmin2-Coffset(2):ixCmax2-Coffset(2),ix-Coffset(3),3)=&
+               ps(igrid)%x(ixCmin1:ixCmax1,&
+            ixCmin2:ixCmax2,ix,3)+0.5d0*ps(igrid)%dx(ixCmin1:ixCmax1,ixCmin2:ixCmax2,ix,3)
+       end do
+    endif
+
+  end subroutine calc_x
+#else
   !> computes cell corner (xC) and cell center (xCC) coordinates
   subroutine calc_x(igrid,xC,xCC)
     use mod_global_parameters
@@ -445,5 +515,6 @@ contains
     endif
 
   end subroutine calc_x
+#endif
 
 end module mod_calculate_xw
