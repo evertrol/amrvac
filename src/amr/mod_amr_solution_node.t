@@ -175,7 +175,7 @@ contains
     ^D&dx^D=rnode(rpdx^D_,igrid)\
 
 #if defined(NDIM) && NDIM == 3
-   do ix=ixGlo1,ixMhi1-nghostcells
+    do ix=ixGlo1,ixMhi1-nghostcells
       ps(igrid)%x(ix,ixGlo2:ixGhi2,ixGlo3:ixGhi3,1)=rnode(rpxmin1_,&
          igrid)+(dble(ix-nghostcells)-half)*dx1
     end do
@@ -202,9 +202,28 @@ contains
 #endif
 
    ! update overlap cells of neighboring blocks in the same way to get the same values
+#if defined(NDIM) && NDIM == 3
+    do ix=ixMhi1-nghostcells+1,ixGhi1
+      ps(igrid)%x(ix,ixGlo2:ixGhi2,ixGlo3:ixGhi3,1)=rnode(rpxmax1_,&
+         igrid)+(dble(ix-ixMhi1)-half)*dx1
+    end do
+    if (userdim > 1) then
+       do ix=ixMhi2-nghostcells+1,ixGhi2
+          ps(igrid)%x(ixGlo1:ixGhi1,ix,ixGlo3:ixGhi3,2)=rnode(rpxmax2_,&
+               igrid)+(dble(ix-ixMhi2)-half)*dx2
+       end do
+    end if
+    if (userdim > 2) then
+       do ix=ixMhi3-nghostcells+1,ixGhi3
+          ps(igrid)%x(ixGlo1:ixGhi1,ixGlo2:ixGhi2,ix,3)=rnode(rpxmax3_,&
+               igrid)+(dble(ix-ixMhi3)-half)*dx3
+       end do
+    end if
+#else
    {do ix=ixMhi^D-nghostcells+1,ixGhi^D
       ps(igrid)%x(ix^D%ixG^T,^D)=rnode(rpxmax^D_,igrid)+(dble(ix-ixMhi^D)-half)*dx^D
     end do\}
+#endif
 
     ^D&dx^D=2.0d0*rnode(rpdx^D_,igrid)\
    {do ix=ixCoGmin^D,ixCoGmax^D
