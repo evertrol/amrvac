@@ -28,7 +28,7 @@ module mod_input_output
   character(len=*), parameter :: fmt_i  = 'i8'     ! Integer format
 
   ! public methods
-  public :: snapshot_write_header  
+  public :: snapshot_write_header
 
 contains
 
@@ -232,7 +232,7 @@ contains
     integer :: windex, ipower
     double precision :: sizeuniformpart^D
     double precision :: im_delta,im_nu,rka54,rka51,rkb54,rka55
- 
+
     namelist /filelist/ base_filename,restart_from_file, &
          typefilelog,firstprocess,reset_grid,snapshotnext, &
          convert,convert_type,saveprim,usr_filename,&
@@ -481,7 +481,7 @@ contains
     time_stepper    = 'twostep'
     time_integrator = 'default'
     ! default PC or explicit midpoint, hence alfa=0.5
-    rk2_alfa        = half 
+    rk2_alfa        = half
     ! default IMEX-RK22Ln hence lambda = 1 - 1/sqrt(2)
     imex222_lambda  = 1.0d0 - 1.0d0 / dsqrt(2.0d0)
     ! default SSPRK(3,3) or Gottlieb-Shu 1998 for threestep
@@ -876,7 +876,7 @@ contains
             .or.t_integrator==IMEX_222)
        if (t_integrator==RK2_alf) then
           if(rk2_alfa<smalldouble.or.rk2_alfa>one)call mpistop("set rk2_alfa within [0,1]")
-          rk_a21=rk2_alfa 
+          rk_a21=rk2_alfa
           rk_b2=1.0d0/(2.0d0*rk2_alfa)
           rk_b1=1.0d0-rk_b2
        endif
@@ -903,28 +903,28 @@ contains
        end select
        if(t_integrator==RK3_BT) then
            select case(rk3_switch)
-             case(1) 
+             case(1)
               ! we code up Ralston 3rd order here
               rk3_a21=1.0d0/2.0d0
               rk3_a31=0.0d0
               rk3_a32=3.0d0/4.0d0
               rk3_b1=2.0d0/9.0d0
               rk3_b2=1.0d0/3.0d0
-             case(2) 
+             case(2)
               ! we code up RK-Wray 3rd order here
               rk3_a21=8.0d0/15.0d0
               rk3_a31=1.0d0/4.0d0
               rk3_a32=5.0d0/12.0d0
               rk3_b1=1.0d0/4.0d0
               rk3_b2=0.0d0
-             case(3) 
+             case(3)
               ! we code up Heun 3rd order here
               rk3_a21=1.0d0/3.0d0
               rk3_a31=0.0d0
               rk3_a32=2.0d0/3.0d0
               rk3_b1=1.0d0/4.0d0
               rk3_b2=0.0d0
-             case(4) 
+             case(4)
               ! we code up Nystrom 3rd order here
               rk3_a21=2.0d0/3.0d0
               rk3_a31=0.0d0
@@ -1079,7 +1079,7 @@ contains
        end select
        if(t_integrator==ssprk5) then
          select case(ssprk_order)
-           ! we use ssprk_order to intercompare the different coefficient choices 
+           ! we use ssprk_order to intercompare the different coefficient choices
            case(3) ! From Gottlieb 2005
             rk_beta11=0.391752226571890d0
             rk_beta22=0.368410593050371d0
@@ -1470,7 +1470,20 @@ contains
     ! full block size including ghostcells
     {ixGhi^D = block_nx^D + 2*nghostcells\}
     {ixGshi^D = ixGhi^D\}
-
+#if defined(NDIM) && NDIM == 3
+    if (block_nx3 == 0) then
+       block_nx3 = 4
+       ixxGhi3 = 1
+       ixGshi3 = 1
+       userdim = 2
+       if (block_nx2 == 0) then
+          block_nx2 = 4
+          ixGhi2 = 1
+          ixGshi2 = 1
+          userdim = 1
+       end if
+    end if
+#endif
     nx_vec = [{domain_nx^D|, }]
     block_nx_vec = [{block_nx^D|, }]
 
@@ -1588,7 +1601,16 @@ contains
         dxfirst_1mq(0:refine_max_level,1:ndim)=dxfirst(0:refine_max_level,1:ndim) &
                               /(1.0d0-qstretch(0:refine_max_level,1:ndim))
     end if
-
+#if defined(NDIM) && NDIM == 3
+    if (userdim < 3) then
+       block_nx3 = 1
+       nx_vec(3) = 1
+       if (userdim < 2) then
+          nx_vec(2) = 1
+          block_nx2 = 1
+       end if
+    end if
+#endif
     dx_vec = [{xprobmax^D-xprobmin^D|, }] / nx_vec
 
     if (mype==0) then
