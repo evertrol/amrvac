@@ -61,9 +61,10 @@ module mod_global_parameters
   !> Number of spatial dimensions for grid variables
   integer, parameter :: ndim=^ND
 
+#if defined(GENDIM)
   !> User selected dimensions
   integer :: userdim=3
-
+#endif
   !> Number of spatial dimensions (components) for vector variables
   integer :: ndir=ndim
 

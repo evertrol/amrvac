@@ -63,7 +63,7 @@ contains
     nx^D=ixMhi^D-ixMlo^D+1;
     nxG^D=ixGhi^D-ixGlo^D+1;
     nxCo^D=nx^D/2;
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
     if (userdim < 3) then
        nxCo3 = 1
        if (userdim < 2) then
@@ -89,7 +89,7 @@ contains
     subsizes(ndim+1)=nw
     ^D&start(^D)=ixMlo^D-1;
     start(ndim+1)=0
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
     if (userdim < 3) then
        sizes(3) = 1
        subsizes(3) = 1
@@ -119,7 +119,7 @@ contains
 
       ^D&sizes(^D)=ixGhi^D/2+nghostcells+1;
       sizes(ndim+1)=nws
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
       if (userdim < 3) then
          sizes(3) = 1
          subsizes(3) = 1
@@ -166,7 +166,7 @@ contains
        subsizes(ndim+1)=nw
        ^D&start(^D)=ixMlo^D-1+(ic^D-1)*nxCo^D;
        start(ndim+1)=0
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
        if (userdim < 3) then
           start(3) = 0
           if (userdim < 2) then
@@ -209,7 +209,7 @@ contains
     subsizes(ndim+1)=^ND
     ^D&start(^D)=0;
     start(ndim+1)=0
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
     if (userdim < 3) then
        sizes(3) = 1
        subsizes(3) = 1
@@ -241,7 +241,7 @@ contains
     subsizes(ndim+1)=nw+nwauxio
     ^D&start(^D)=0;
     start(ndim+1)=0
-#if defined(NDIM) && NDIM
+#if defined(GENDIM)
     if (userdim < 3) then
        sizes(3) = 1
        subsizes(3) = 1

@@ -88,7 +88,7 @@ contains
     neighbor_pole=0
 
     ! check resolution
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if ((mod(ixGhi1,2) /= 0) .or. ((userdim > 1) .and. mod(ixGhi2,&
        2) /= 0) .or. ((userdim > 2) .and. mod(ixGhi3,2) /= 0)) then
 #else
@@ -97,7 +97,7 @@ contains
        call mpistop("mesh widths must give even number grid points")
     end if
     ixM^LL=ixG^LL^LSUBnghostcells;
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if (userdim < 3) then
        ixMlo3 = 1
        ixMhi3 = 1

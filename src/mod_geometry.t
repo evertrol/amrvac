@@ -210,7 +210,7 @@ contains
       s%surface(ixG^S,2)=s%surfaceC(ixG^S,2)
       s%surface(ixG^S,3)=s%surfaceC(ixG^S,3)
       }
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
       s%surfaceC(0,ixGmin2:ixGmax2,ixGmin3:ixGmax3,1)=s%surfaceC(1,&
            ixGmin2:ixGmax2,ixGmin3:ixGmax3,1);
       if (userdim > 1) then

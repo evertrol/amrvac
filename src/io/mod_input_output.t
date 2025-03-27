@@ -1470,7 +1470,7 @@ contains
     ! full block size including ghostcells
     {ixGhi^D = block_nx^D + 2*nghostcells\}
     {ixGshi^D = ixGhi^D\}
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if (block_nx3 == 0) then
        block_nx3 = 4
        ixGhi3 = 1
@@ -1601,7 +1601,7 @@ contains
         dxfirst_1mq(0:refine_max_level,1:ndim)=dxfirst(0:refine_max_level,1:ndim) &
                               /(1.0d0-qstretch(0:refine_max_level,1:ndim))
     end if
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if (userdim < 3) then
        block_nx3 = 1
        nx_vec(3) = 1

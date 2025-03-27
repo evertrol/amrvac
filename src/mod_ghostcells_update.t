@@ -359,7 +359,7 @@ contains
       \}
     end if
 
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if (userdim < 3) then
        ixMmin3 = 1
        ixMmax3 = 1
@@ -411,7 +411,7 @@ contains
 
     integer, intent(in) :: nwstart, nwbc
     integer :: i^D, ic^D, inc^D, iib^D
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     integer :: ii^D
 
     {ii^D = 1\}

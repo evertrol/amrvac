@@ -416,7 +416,7 @@ contains
 
   end subroutine getheadernames
 
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
   !> computes cell corner (xC) and cell center (xCC) coordinates
   subroutine calc_x(igrid,xC,xCC)
     use mod_global_parameters

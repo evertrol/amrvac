@@ -80,7 +80,7 @@ contains
     ixCoGmin^D=1;
     ixCoGmax^D=(ixGhi^D-2*nghostcells)/2+2*nghostcells;
 
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     if (userdim < 3) then
        ixCoGmax3 = 1
        if (userdim < 2) then
@@ -174,7 +174,7 @@ contains
 
     ^D&dx^D=rnode(rpdx^D_,igrid)\
 
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     do ix=ixGlo1,ixMhi1-nghostcells
       ps(igrid)%x(ix,ixGlo2:ixGhi2,ixGlo3:ixGhi3,1)=rnode(rpxmin1_,&
          igrid)+(dble(ix-nghostcells)-half)*dx1
@@ -202,7 +202,7 @@ contains
 #endif
 
    ! update overlap cells of neighboring blocks in the same way to get the same values
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
     do ix=ixMhi1-nghostcells+1,ixGhi1
       ps(igrid)%x(ix,ixGlo2:ixGhi2,ixGlo3:ixGhi3,1)=rnode(rpxmax1_,&
          igrid)+(dble(ix-ixMhi1)-half)*dx1
@@ -645,7 +645,7 @@ contains
     s%ixG^L=ixG^L;
     {^D& ixGsmin^D = ixGmin^D-1; ixGsmax^D = ixGmax^D|;}
 
-#if defined(NDIM) && NDIM == 3
+#if defined(GENDIM)
      if (userdim < 3) then
         ixGsmin3 = 1
         if (userdim < 2) then
