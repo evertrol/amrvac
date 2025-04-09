@@ -745,6 +745,14 @@ contains
         else
            skip_direction = .false.
         end if
+
+        if (userdim < 3 .and. dir(3) /= 0) then
+           skip_direction = .true.
+        end if
+        if (userdim < 2 .and. dir(2) /= 0) then
+           skip_direction = .true.
+        end if
+
       end function skip_direction
 
       !> Physical boundary conditions
