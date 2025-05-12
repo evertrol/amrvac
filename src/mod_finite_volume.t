@@ -41,6 +41,10 @@ contains
     do idims= idims^LIM
        ix^L=ix^L^LADDkr(idims,^D);
     end do
+    if (userdim < 3) then
+       ixmin3 = 1
+       ixmax3 = 1
+    endif
     if (ixI^L^LTix^L|.or.|.or.) &
          call mpistop("Error in Hancock: Nonconforming input limits")
 
@@ -55,6 +59,10 @@ contains
       ! First copy all variables, then upwind wLC and wRC.
       ! wLC is to the left of ixO, wRC is to the right of wCT.
       hxO^L=ixO^L-kr(idims,^D);
+      if (userdim < 3) then
+         hxOmin3 = 1
+         hxOmax3 = 1
+      endif
 
       wRp(hxO^S,1:nwflux)=wprim(ixO^S,1:nwflux)
       wLp(ixO^S,1:nwflux)=wprim(ixO^S,1:nwflux)
@@ -158,6 +166,10 @@ contains
     do idims= idims^LIM
        ix^L=ix^L^LADD2*kr(idims,^D);
     end do
+    if (userdim < 3) then
+       ixmin3 = 1
+       ixmax3 = 1
+    endif
     if (ixI^L^LTix^L|.or.|.or.) &
          call mpistop("Error in fv : Nonconforming input limits")
 
@@ -181,7 +193,17 @@ contains
          ! ixC is centered index in the idims direction from ixOmin-1/2 to ixOmax+1/2
          ixCmax^D=ixOmax^D; ixCmin^D=hxOmin^D;
        end if
-
+       if (userdim < 3) then
+          ixCmin3 = 1
+          ixCmax3 = 1
+          kxCmin3 = 1
+          kxCmax3 = 1
+          kxRmin3 = 1
+          kxRmax3 = 1
+          hxOmin3 = 1
+          hxOmax3 = 1
+       endif
+ 
        ! wRp and wLp are defined at the same locations, and will correspond to
        ! the left and right reconstructed values at a cell face. Their indexing
        ! is similar to cell-centered values, but in direction idims they are
@@ -192,6 +214,10 @@ contains
        ! Determine stencil size
        {ixCRmin^D = max(ixCmin^D - phys_wider_stencil,ixGlo^D)\}
        {ixCRmax^D = min(ixCmax^D + phys_wider_stencil,ixGhi^D)\}
+       if (userdim < 3) then
+          ixCRmin3 = 1
+          ixCRmax3 = 1
+       endif
 
        ! apply limited reconstruction for left and right status at cell interfaces
        call reconstruct_LR(ixI^L,ixCR^L,ixCR^L,idims,wprim,wLC,wRC,wLp,wRp,x,dxs(idims))
@@ -251,6 +277,10 @@ contains
       dxinv=-qdt/dxs
       do idims= idims^LIM
         hxO^L=ixO^L-kr(idims,^D);
+        if (userdim < 3) then
+           hxOmin3 = 1
+           hxOmax3 = 1
+        endif
         ! TODO maybe put if outside loop idims: but too much code is copy pasted
         ! this is also done in hancock and fd, centdiff in mod_finite_difference
         if(local_timestep) then
@@ -1136,6 +1166,16 @@ contains
        jxR^L=ixR^L+kr(idims,^D);
        ixCmax^D=jxRmax^D; ixCmin^D=ixLmin^D-kr(idims,^D);
        jxC^L=ixC^L+kr(idims,^D);
+       if (userdim < 3) then
+          jxRmin3 = 1
+          jxRmax3 = 1
+          !ixRmin3 = 1
+          !ixRmax3 = 1
+          jxCmin3 = 1
+          jxCmax3 = 1
+          ixCmin3 = 1
+          ixCmax3 = 1
+       endif
        do iw=1,nwflux
           if (loglimit(iw)) then
              w(ixCmin^D:jxCmax^D,iw)=dlog10(w(ixCmin^D:jxCmax^D,iw))

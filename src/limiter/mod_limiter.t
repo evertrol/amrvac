@@ -158,6 +158,12 @@ contains
     ! Contract indices in idim for output.
     ixOmin^D=ixCmin^D+kr(idims,^D); ixOmax^D=ixCmax^D;
     hxO^L=ixO^L-kr(idims,^D);
+    if (userdim < 3) then
+       ixOmin3 = 1
+       ixOmax3 = 1
+       hxOmin3 = 1
+       hxOmax3 = 1
+    endif
 
     ! About the notation: the conventional argument theta (the ratio of slopes)
     ! would be given by dwC(ixO^S)/dwC(hxO^S). However, in the end one

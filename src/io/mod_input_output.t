@@ -280,7 +280,7 @@ contains
          typeprolonglimit, &
          logflag,tfixgrid,itfixgrid,ditregrid
     namelist /paramlist/  courantpar, dtpar, dtdiffpar, &
-         typecourant, slowsteps
+         typecourant, slowsteps, debugloop
 
     namelist /emissionlist/ filename_euv,wavelength,&
           filename_sxr,emin_sxr,emax_sxr,&
@@ -465,6 +465,7 @@ contains
     nxdiffusehllc   = 0
     flathllc        = .false.
     slowsteps       = -1
+    debugloop = 0
     courantpar      = 0.8d0
     typecourant     = 'maxsum'
     dimsplit        = .false.
@@ -556,6 +557,11 @@ contains
           enddo
        enddo
     enddo
+    if (userdim < 3) then
+       do i = 1, 3
+          kr(i, 3) = 0
+       enddo
+    endif
 
     ! These are used to construct file and log names from multiple par files
     basename_full = ''

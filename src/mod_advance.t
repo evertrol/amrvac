@@ -707,6 +707,10 @@ contains
     integer :: ixO^L
 
     ixO^L=ixI^L^LSUBnghostcells;
+    if (userdim < 3) then
+       ixOmin3 = 1
+       ixOmax3 = 1
+    end if
     select case (method)
     case (fs_hll,fs_hllc,fs_hllcd,fs_hlld,fs_tvdlf,fs_tvdmu)
        call finite_volume(method,qdt,dtfactor,ixI^L,ixO^L,idim^LIM,qtC,sCT,qt,s,fC,fE,dxs,x)

@@ -179,14 +179,6 @@ contains
       ps(igrid)%x(ix,ixGlo2:ixGhi2,ixGlo3:ixGhi3,1)=rnode(rpxmin1_,&
          igrid)+(dble(ix-nghostcells)-half)*dx1
     end do
-    if (userdim > 1) then
-       do ix=ixGlo2,ixMhi2-nghostcells
-          ps(igrid)%x(ixGlo1:ixGhi1,ix,ixGlo3:ixGhi3,2)=rnode(rpxmin2_,&
-               igrid)+(dble(ix-nghostcells)-half)*dx2
-       end do
-    else
-       ps(igrid)%x(ixGlo1:ixGhi1, 1, 1, 2) = 0.0d0
-    end if
     if (userdim > 2) then
        do ix=ixGlo3,ixMhi3-nghostcells
           ps(igrid)%x(ixGlo1:ixGhi1,ixGlo2:ixGhi2,ix,3)=rnode(rpxmin3_,&
@@ -194,6 +186,14 @@ contains
        end do
     else
        ps(igrid)%x(ixGlo1:ixGhi1, ixGlo2:ixGhi2, 1, 3) = 0.0d0
+    end if
+    if (userdim > 1) then
+       do ix=ixGlo2,ixMhi2-nghostcells
+          ps(igrid)%x(ixGlo1:ixGhi1,ix,ixGlo3:ixGhi3,2)=rnode(rpxmin2_,&
+               igrid)+(dble(ix-nghostcells)-half)*dx2
+       end do
+    else
+       ps(igrid)%x(ixGlo1:ixGhi1, 1, 1, 2) = 0.0d0
     end if
 #else
    {do ix=ixGlo^D,ixMhi^D-nghostcells

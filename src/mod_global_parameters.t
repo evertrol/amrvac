@@ -528,6 +528,9 @@ module mod_global_parameters
   !> by a factor \f$ 1 - (1- step/slowsteps)^2 \f$
   integer :: slowsteps
 
+  !> Enter infite sleep loop for attaching a debugger. 1 for yes, 0 for no
+  integer, volatile :: debugloop
+
   ! Method switches
 
   !> Index of the sub-step in a multi-step time integrator
