@@ -15,7 +15,7 @@
  /
 
  &stoplist
-   it_max           = 20
+   time_max           = 2.0d0
  /
 
  &methodlist

@@ -4,7 +4,7 @@
    base_filename    = 'output2D/kh'
    convert          = T
    convert_type     = 'oneblock'
-   saveprim         = T
+   saveprim         = F
    level_io         = 1
  /
 
